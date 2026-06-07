@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime
 import os
+import base64 # <-- Añade esta línea
 
 # Importamos la función que creaste en el otro archivo
 from generar_pdf import generar_pdf_con_chrome
@@ -101,8 +102,12 @@ st.markdown("---")
 # --- SECCIÓN 5: GENERACIÓN DE PDF ---
 st.subheader("📄 Exportar Documento")
 
+with open("logo.jpg", "rb") as image_file:
+    imagen_codificada = base64.b64encode(image_file.read()).decode('utf-8')
+
 # Empaquetamos toda la información para enviarla a Jinja2
 datos_para_pdf = {
+    "logo_base64": imagen_codificada,
     "fecha": datetime.now().strftime("%d/%m/%Y"),
     "cliente_nombre": cliente,
     "cliente_proyecto": descripcion_proyecto,
@@ -123,12 +128,8 @@ nombre_archivo_salida = f"Cotizacion_{cliente.replace(' ', '_')}.pdf"
 # El botón de acción
 if st.button("Generar PDF de Cotización", type="primary"):
     with st.spinner("Creando documento..."):
-        # Llamamos a tu función para crear el archivo en la carpeta
-        generar_pdf_con_chrome('plantilla.html', nombre_archivo_salida, datos_para_pdf)
-        
-        # Leemos el archivo recién creado y mostramos el botón para descargarlo
-        with open(nombre_archivo_salida, "rb") as pdf_file:
-            st.download_button(
+        pdf_file = generar_pdf_con_chrome('plantilla.html', datos_para_pdf)
+        st.download_button(
                 label="⬇️ Descargar PDF",
                 data=pdf_file,
                 file_name=nombre_archivo_salida,
