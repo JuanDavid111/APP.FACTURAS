@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cotización Armadillo 3D</title>
+    <style>
+        /* Configuración de la hoja para WeasyPrint */
+        @page {
+            size: letter;
+            margin: 15mm 20mm;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #000;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+        
+        /* --- ENCABEZADO Y LOGO --- */
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 120px; /* Ajusta este valor según el tamaño de tu imagen */
+            height: auto;
+        }
+        .brand-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-left: 20px;
+        }
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            margin-bottom: 40px;
+        }
+
+        /* --- TABLAS GENERALES --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #d4af37; /* Borde color dorado oscuro */
+            padding: 6px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #eab624; /* Color amarillo de la plantilla */
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        /* --- TABLAS PEQUEÑAS (Fecha y Cliente) --- */
+        .table-fecha {
+            width: 30%;
+        }
+        .table-fecha th {
+            text-align: left;
+            width: 40%;
+        }
+        
+        .table-cliente th {
+            text-align: center;
+        }
+        
+        /* --- TABLA PRINCIPAL DE VENTAS --- */
+        .table-ventas th {
+            font-size: 12px;
+        }
+        .table-ventas td {
+            text-align: center;
+        }
+        .table-ventas td.desc-text {
+            text-align: left; /* La descripción va alineada a la izquierda */
+        }
+
+        /* --- SECCIÓN INFERIOR (Términos y Resumen) --- */
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            page-break-inside: avoid; /* Evita que esta sección se parta en dos páginas */
+        }
+        .terminos-pago {
+            width: 45%;
+        }
+        .terminos-pago table {
+            border: none;
+        }
+        .terminos-pago th {
+            border: none;
+            border-bottom: 2px solid #eab624;
+        }
+        .terminos-pago td {
+            border: none;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+        .resumen-pago {
+            width: 45%;
+        }
+        .resumen-pago td.right-align {
+            text-align: right;
+            font-weight: bold;
+        }
+        .resumen-pago tr.total-row td {
+            background-color: #eab624;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <img src="logo.jpg" alt="Logo Armadillo 3D" class="logo">
+        <div class="brand-name">Armadillo 3D</div>
+    </div>
+
+    <div class="title">COTIZACIÓN</div>
+
+    <table class="table-fecha">
+        <tr>
+            <th>Fecha</th>
+            <td>{{ fecha }}</td>
+        </tr>
+        <tr>
+            <th>Validez</th>
+            <td>15 días hábiles</td> </tr>
+    </table>
+
+    <table class="table-cliente">
+        <tr>
+            <th colspan="2">Datos del Cliente</th>
+        </tr>
+        <tr>
+            <td style="width: 50%;"><strong>Nombre del Cliente:</strong> {{ cliente_nombre }}</td>
+            <td style="width: 50%;"><strong>Proyecto:</strong> {{ cliente_proyecto }}</td>
+        </tr>
+    </table>
+
+    <table class="table-ventas">
+        <thead>
+            <tr>
+                <th>Cantidad</th>
+                <th>Descripción</th>
+                <th>Consumo</th>
+                <th>Tiempo</th>
+                <th>Precio Unitario<br>($ y Bs)</th>
+                <th>Total<br>($ y Bs)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in lista_ventas %}
+            <tr>
+                <td>{{ venta.cantidad }}</td>
+                <td class="desc-text">{{ venta.descripcion }}</td>
+                <td>{{ venta.consumo }}g</td>
+                <td>{{ venta.tiempo }}h</td>
+                <td>
+                    ${{ "%.2f"|format(venta.precio_u_usd) }}<br>
+                    Bs{{ "%.2f"|format(venta.precio_u_bs) }}
+                </td>
+                <td>
+                    ${{ "%.2f"|format(venta.subtotal_usd) }}<br>
+                    Bs{{ "%.2f"|format(venta.subtotal_bs) }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer-container">
+        
+        <div class="terminos-pago">
+            <table>
+                <tr>
+                    <th colspan="2">Términos de pago</th>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Binance UDT</strong><br>
+                        micorreo@email.com
+                    </td>
+                    <td>
+                        <strong>Pago Movil</strong><br>
+                        Banco de Venezuela<br>
+                        V-12345678<br>
+                        0414-1234567
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="resumen-pago">
+            <table>
+                <tr>
+                    <th>Resumen</th>
+                    <th>$</th>
+                    <th>Bs (Tasa: {{ tasa_cambio }})</th>
+                </tr>
+                <tr>
+                    <td><strong>Subtotal</strong></td>
+                    <td class="right-align">${{ "%.2f"|format(resumen_subtotal_usd) }}</td>
+                    <td class="right-align">Bs{{ "%.2f"|format(resumen_subtotal_bs) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Descuento</strong></td>
+                    <td class="right-align">${{ "%.2f"|format(resumen_descuento_usd) }}</td>
+                    <td class="right-align">Bs{{ "%.2f"|format(resumen_descuento_bs) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Costo de Envío</strong></td>
+                    <td class="right-align">${{ "%.2f"|format(resumen_envio_usd) }}</td>
+                    <td class="right-align">Bs{{ "%.2f"|format(resumen_envio_bs) }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total a pagar</td>
+                    <td class="right-align">${{ "%.2f"|format(resumen_total_usd) }}</td>
+                    <td class="right-align">Bs{{ "%.2f"|format(resumen_total_bs) }}</td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
