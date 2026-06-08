@@ -1,3 +1,4 @@
 streamlit
 jinja2
 pyhtml2pdf
+streamlit[pdf]
