@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import datetime
-import os
+import dola     
 import base64 # <-- Añade esta línea
 
 # Importamos la función que creaste en el otro archivo
@@ -10,11 +10,28 @@ st.set_page_config(page_title="Generador de Cotizaciones", layout="wide")
 st.title("Registro de Ventas")
 
 # --- SECCIÓN 1: DATOS GLOBALES ---
-col1, col2 = st.columns(2)
+col1, col2 , col3 = st.columns(3)
 with col1:
     cliente = st.text_input("Nombre del Cliente")
 with col2:
-    tasa_dolar = st.number_input("Tasa del Dólar (Bs.)", min_value=0.0, value=36.0, step=0.5)
+    # Selector de opciones
+    opcion_tasa = st.radio(
+        "Tipo de Tasa", 
+        ["BCV", "Paralelo"], 
+        horizontal=True # Los pone uno al lado del otro
+    )
+    
+    # Asignamos la variable dependiendo de lo que elija el usuario
+    if opcion_tasa == "BCV":
+        tasa_a_usar = dola.tasaBCV()
+    else:
+        tasa_a_usar = dola.tasaParalelo()
+
+    # Mostramos el input numérico
+    tasa_dolar = st.number_input("Tasa del Dólar (Bs.)", min_value=0.0, value=tasa_a_usar, step=0.5)
+with col3:
+    Porcentaje = st.number_input("Porcentaje(%)", min_value=0, value=10, step=10)
+
 
 descripcion_proyecto = st.text_area("Descripción del Proyecto")
 
@@ -41,12 +58,55 @@ for i in range(st.session_state.num_filas):
     with c2:
         desc_venta = st.text_input("Descripción de la venta", key=f"desc_{i}")
     with c3:
-        tiempo = st.number_input("Tiempo (hrs)", min_value=0.0, value=0.0, step=0.5, key=f"tiempo_{i}")
+        # Dividimos la columna 3 en dos sub-columnas internas
+        col_h, col_m = st.columns(2)
+        with col_h:
+            horas = st.number_input("Hrs", min_value=0, value=0, step=1, key=f"h_{i}")
+        with col_m:
+            # Los minutos están restringidos de 0 a 59
+            minutos = st.number_input("Min", min_value=0, max_value=59, value=0, step=1, key=f"m_{i}")
+        
+
+        tiempo = horas + (minutos / 60.0)
+    # ---------------------------
     with c4:
         consumo = st.number_input("Consumo (g)", min_value=0.0, value=0.0, step=10.0, key=f"consumo_{i}")
-    with c5:
-        precio_u = st.number_input("Precio/Und ($)", min_value=0.0, value=0.0, step=1.0, key=f"precio_{i}")
 
+# --- TUS CUENTAS MATEMÁTICAS ---
+    constante_consumo = 35 * (consumo / 1000)
+    consumo_horas = tiempo * 1.5
+    total_consumo = constante_consumo + consumo_horas
+    total_consumo = total_consumo * (dola.tasaParalelo() / dola.tasaBCV())
+    total_consumo = total_consumo / (1 - (Porcentaje / 100))
+
+    with c5:
+        # 1. Leemos el estado del interruptor en la memoria ANTES de dibujarlo.
+        # Si es la primera vez que carga, le decimos que por defecto sea False.
+        editar_precio = st.session_state.get(f"editar_{i}", False)
+        
+        # 2. Dibujamos la casilla PRIMERO para que se alinee con las de la izquierda.
+        if editar_precio:
+            precio_u = st.number_input(
+                "Precio/Und ($)", 
+                min_value=0.0, 
+                value=float(total_consumo), 
+                step=1.0, 
+                key=f"precio_manual_{i}"
+            )
+        else:
+            st.session_state[f"precio_auto_{i}"] = float(total_consumo)
+            precio_u = st.number_input(
+                "Precio/Und ($)", 
+                min_value=0.0, 
+                disabled=True, 
+                key=f"precio_auto_{i}"
+            )
+            
+        # 3. Dibujamos el interruptor ABAJO. 
+        # Al darle clic, actualizará la memoria y recargará la página automáticamente.
+        st.toggle("Manual", key=f"editar_{i}")
+
+    # El cálculo de los subtotales queda intacto
     subtotal_usd = cantidad * precio_u
     subtotal_bs = subtotal_usd * tasa_dolar
     total_acumulado_usd += subtotal_usd
@@ -101,13 +161,16 @@ st.markdown("---")
 
 # --- SECCIÓN 5: GENERACIÓN DE PDF ---
 st.subheader("📄 Exportar Documento")
+with open("fondo.png", "rb") as img_file:
+    fondo_b64 = base64.b64encode(img_file.read()).decode('utf-8')
 
-with open("logo.jpg", "rb") as image_file:
+with open("logo.png", "rb") as image_file:
     imagen_codificada = base64.b64encode(image_file.read()).decode('utf-8')
 
 # Empaquetamos toda la información para enviarla a Jinja2
 datos_para_pdf = {
     "logo_base64": imagen_codificada,
+    "fondo_base64": fondo_b64,
     "fecha": datetime.now().strftime("%d/%m/%Y"),
     "cliente_nombre": cliente,
     "cliente_proyecto": descripcion_proyecto,

@@ -16,6 +16,23 @@
             line-height: 1.3;
         }
         
+        /* --- MARCA DE AGUA --- */
+        .marca-de-agua {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            /* translate centra la imagen, rotate(-40deg) la inclina a la izquierda */
+            transform: translate(-50%, -50%) rotate(-40deg);
+            opacity: 0.25; /* Nivel de transparencia (0.10 es bien transparente) */
+            z-index: -100; /* La empuja totalmente al fondo, detrás del texto */
+            width: 100%;
+            text-align: center;
+        }
+
+        .marca-de-agua img {
+            width: 100%; /* Qué tanto espacio de la hoja va a ocupar */
+            height: auto;
+        }
         /* --- ENCABEZADO Y LOGO --- */
         .header-container {
             display: flex;
@@ -23,11 +40,11 @@
             margin-bottom: 20px;
         }
         .logo {
-            width: 120px; /* Ajusta este valor según el tamaño de tu imagen */
+            width: 150px; /* Ajusta este valor según el tamaño de tu imagen */
             height: auto;
         }
         .brand-name {
-            font-size: 24px;
+            font-size: 50px;
             font-weight: bold;
             margin-left: 20px;
         }
@@ -36,7 +53,7 @@
             font-size: 28px;
             font-weight: bold;
             letter-spacing: 2px;
-            margin-top: 10px;
+            margin-top: 20px;
             margin-bottom: 40px;
         }
 
@@ -85,7 +102,7 @@
         .footer-container {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            margin-top: 50px;
             page-break-inside: avoid; /* Evita que esta sección se parta en dos páginas */
         }
         .terminos-pago {
@@ -95,10 +112,12 @@
             border: none;
         }
         .terminos-pago th {
+            text-align: center;
             border: none;
             border-bottom: 2px solid #eab624;
         }
         .terminos-pago td {
+            text-align: center;
             border: none;
             padding: 4px 0;
             font-size: 12px;
@@ -108,21 +127,38 @@
             width: 45%;
         }
         .resumen-pago td.right-align {
-            text-align: right;
+            text-align: center;
             font-weight: bold;
         }
         .resumen-pago tr.total-row td {
             background-color: #eab624;
             font-weight: bold;
             font-size: 14px;
+
+        /* --- DATOS DE CONTACTO (PIE DE PÁGINA) --- */
+        .datos-contacto {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 2px solid #eab624; /* Línea dorada para separar */
+            text-align: right; /* Lo enviamos a la esquina derecha */
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .datos-contacto p {
+            margin: 4px 0; /* Espaciado ajustado entre las líneas */
+        }
         }
     </style>
 </head>
 <body>
+    <div class="marca-de-agua">
+        <img src="data:image/png;base64,{{ fondo_base64 }}" alt="Marca de Agua Armadillo">
+    </div>
 
     <div class="header-container">
-        <img src="data:image/jpeg;base64,{{ logo_base64 }}" alt="Logo Armadillo 3D" class="logo">
-        <div class="brand-name">Armadillo 3D</div>
+        <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo Armadillo 3D" class="logo">
+        <div class="brand-name">Armadillo3D</div>
     </div>
 
     <div class="title">COTIZACIÓN</div>
@@ -134,7 +170,7 @@
         </tr>
         <tr>
             <th>Validez</th>
-            <td>15 días hábiles</td> </tr>
+            <td>2 días hábiles</td> </tr>
     </table>
 
     <table class="table-cliente">
@@ -188,13 +224,14 @@
                 <tr>
                     <td>
                         <strong>Binance UDT</strong><br>
-                        micorreo@email.com
+                        ID:78367090
+
                     </td>
                     <td>
                         <strong>Pago Movil</strong><br>
-                        Banco de Venezuela<br>
-                        V-12345678<br>
-                        0414-1234567
+                        Venezuela/Mercantil<br>
+                        V-25689058<br>
+                        04242487494
                     </td>
                 </tr>
             </table>
@@ -229,6 +266,12 @@
                 </tr>
             </table>
         </div>
+
+    </div>
+
+    </div> <div class="datos-contacto">
+        <p><strong>Instagram:</strong> @armadillo3d</p>
+        <p><strong>WhatsApp:</strong> +58 424-2487494</p>
 
     </div>
 
