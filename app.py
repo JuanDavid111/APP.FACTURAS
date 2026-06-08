@@ -198,3 +198,4 @@ if st.button("Generar PDF de Cotización", type="primary"):
                 file_name=nombre_archivo_salida,
                 mime="application/pdf"
             )
+        st.pdf(pdf_file)
