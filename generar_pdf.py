@@ -17,5 +17,5 @@ def generar_pdf_con_chrome(archivo_plantilla,datos):
     # 4. Convertir el HTML a PDF usando pyhtml2pdf
     # Usamos un buffer en memoria para evitar problemas de rutas
     buffer_pdf = io.BytesIO()
-    converter.convert(html_renderizado, buffer_pdf)
+    converter.convert(html_renderizado, buffer_pdf, install_driver=False)
     return buffer_pdf
